@@ -22,38 +22,41 @@ jobs:
   terraform:
     name: "apply TF changes"
     runs-on: ubuntu-latest
-    default:
+    defaults:
       run: 
         shell: bash
         working-directory: ./terraform
+
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
 
-      -name: "set up terraform iwth specified version on runner"
-       uses:  hashicorp/setup-terraform@v2
-       #with:
-          #terraform_version: 1.6.3 
-      - name: terraform init
+      - name: "Set up Terraform with specified version"
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.3  # optional but recommended
+
+      - name: Terraform Init
         id: init
-        run: terraform init -backend-config="bucket=$BUCKET_TF_STATE" 
-      - name: terraform format
+        run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
+
+      - name: Terraform Format
         id: format
         run: terraform fmt -check
 
-      - name: terraform validate
+      - name: Terraform Validate
         id: validate
         run: terraform validate
 
-      - name: terraform plan
+      - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -input=false -out=planfile
         continue-on-error: true
 
-
-      - name: terraform plan Status
-        if: steps.plan.outcome="failure"
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
         run: exit 1
+
         
       
       
